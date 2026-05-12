@@ -61,6 +61,10 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
+	// aws ses
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'software.amazon.awssdk:sesv2:2.43.2'
+
 	// db
 	runtimeOnly 'org.postgresql:postgresql'
 
