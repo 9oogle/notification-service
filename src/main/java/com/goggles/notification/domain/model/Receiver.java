@@ -25,7 +25,7 @@ public class Receiver {
   @Column(name = "receiver_type", nullable = false, length = 20, updatable = false)
   private ReceiverType receiverType;
 
-  private Receiver(UUID receiverId, ReceiverType receiverType) {
+  public Receiver(UUID receiverId, ReceiverType receiverType) {
     validate(receiverId, receiverType);
     this.receiverId = receiverId;
     this.receiverType = receiverType;

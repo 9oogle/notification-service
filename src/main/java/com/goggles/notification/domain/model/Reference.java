@@ -25,7 +25,7 @@ public class Reference {
   @Column(name = "reference_id", nullable = false, updatable = false)
   private UUID referenceId;
 
-  private Reference(ReferenceType referenceType, UUID referenceId) {
+  public Reference(ReferenceType referenceType, UUID referenceId) {
     validate(referenceType, referenceId);
     this.referenceType = referenceType;
     this.referenceId = referenceId;
