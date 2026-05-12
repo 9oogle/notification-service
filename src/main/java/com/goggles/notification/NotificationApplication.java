@@ -3,9 +3,11 @@ package com.goggles.notification;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
+@EnableJpaAuditing(auditorAwareRef = "auditorAwareImpl")
 @EntityScan(basePackages = {"com.goggles.notification", "com.goggles.common"})
 @EnableJpaRepositories(basePackages = {"com.goggles.notification", "com.goggles.common"})
 public class NotificationApplication {
