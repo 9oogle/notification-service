@@ -2,7 +2,6 @@ package com.goggles.notification.infrastructure.consumer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.goggles.common.event.annotation.IdempotentConsumer;
 import com.goggles.notification.application.NotificationProcessor;
 import com.goggles.notification.application.dto.SendNotificationCommand;
 import com.goggles.notification.domain.model.NotificationChannel;
@@ -30,7 +29,7 @@ public class OrderCompleteConsumer {
   private final ObjectMapper objectMapper;
 
   @KafkaListener(topics = TOPIC, groupId = GROUP_NAME)
-//  @IdempotentConsumer(GROUP_NAME)
+  //  @IdempotentConsumer(GROUP_NAME)
   public void consume(ConsumerRecord<String, String> record, Acknowledgment ack) {
     log.info(
         "[Kafka] Received {} | partition={}, offset={}",
@@ -74,17 +73,14 @@ public class OrderCompleteConsumer {
           NotificationChannel.EMAIL,
           NotificationType.ORDER_COMPLETED.getTitle(),
           NotificationType.ORDER_COMPLETED.formatContent(
-              event.orderId(), event.amount(), event.approvedAt()
-          ),
+              event.orderId(), event.amount(), event.approvedAt()),
           Map.of(
               "subtitle", "주문 내역을 확인해 주세요.",
               "orderId", event.orderId(),
               "orderName", event.orderName(),
               "amount", event.amount(),
               "eventAt", event.approvedAt(),
-              "supportEmail", "AnnieHa"
-          )
-      );
+              "supportEmail", "AnnieHa"));
     } catch (JsonProcessingException e) {
       throw new InvalidOrderEventPayloadException();
     }

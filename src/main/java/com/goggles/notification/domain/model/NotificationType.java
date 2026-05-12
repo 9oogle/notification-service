@@ -34,7 +34,8 @@ public enum NotificationType {
     try {
       return NotificationType.valueOf(value.toUpperCase());
     } catch (IllegalArgumentException e) {
-      throw new InvalidNotificationException(NotificationErrorCode.INVALID_NOTIFICATION_TYPE, value);
+      throw new InvalidNotificationException(
+          NotificationErrorCode.INVALID_NOTIFICATION_TYPE, value);
     }
   }
 }

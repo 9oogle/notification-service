@@ -18,8 +18,7 @@ public record CreateNotificationRequest(
     String channel,
     String title,
     String content,
-    Map<String, Object> templateVariables
-) {
+    Map<String, Object> templateVariables) {
   public SendNotificationCommand toCommand(String notificationType) {
     return new SendNotificationCommand(
         receiverId,
@@ -32,7 +31,6 @@ public record CreateNotificationRequest(
         NotificationChannel.from(channel),
         title,
         content,
-        templateVariables != null ? templateVariables : Map.of()
-    );
+        templateVariables != null ? templateVariables : Map.of());
   }
 }

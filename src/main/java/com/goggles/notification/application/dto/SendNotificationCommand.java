@@ -18,5 +18,4 @@ public record SendNotificationCommand(
     NotificationChannel channel,
     String title,
     String content,
-    Map<String, Object> templateVariables
-) {}
+    Map<String, Object> templateVariables) {}

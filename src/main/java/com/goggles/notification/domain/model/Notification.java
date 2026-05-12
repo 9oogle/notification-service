@@ -29,11 +29,9 @@ public class Notification extends BaseTime {
   @Column(name = "notification_log_id", updatable = false, nullable = false)
   private UUID notificationLogId;
 
-  @Embedded
-  private Receiver receiver;
+  @Embedded private Receiver receiver;
 
-  @Embedded
-  private Reference reference;
+  @Embedded private Reference reference;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "type", nullable = false, length = 30, updatable = false)
@@ -88,10 +86,7 @@ public class Notification extends BaseTime {
   }
 
   private static void validate(
-      NotificationType type,
-      NotificationChannel channel,
-      String title,
-      String content) {
+      NotificationType type, NotificationChannel channel, String title, String content) {
     if (type == null) {
       throw new InvalidNotificationException(NotificationErrorCode.MISSING_NOTIFICATION_TYPE);
     }

@@ -13,8 +13,10 @@ public class AwsSesConfig {
 
   @Value("${aws.ses.access-key}")
   private String accessKey;
+
   @Value("${aws.ses.secret-key}")
   private String secretKey;
+
   @Value("${aws.region}")
   private String region;
 

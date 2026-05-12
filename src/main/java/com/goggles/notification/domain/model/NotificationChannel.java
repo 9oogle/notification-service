@@ -21,7 +21,8 @@ public enum NotificationChannel {
     try {
       return NotificationChannel.valueOf(value.toUpperCase());
     } catch (IllegalArgumentException e) {
-      throw new InvalidNotificationException(NotificationErrorCode.INVALID_NOTIFICATION_CHANNEL, value);
+      throw new InvalidNotificationException(
+          NotificationErrorCode.INVALID_NOTIFICATION_CHANNEL, value);
     }
   }
 }

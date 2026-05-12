@@ -11,5 +11,4 @@ public record OrderCanceledEvent(
     String orderName,
     Long amount,
     Instant cancelledAt,
-    String cancelReason
-) {}
+    String cancelReason) {}

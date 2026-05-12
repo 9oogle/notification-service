@@ -15,14 +15,10 @@ public class NotificationProcessor {
   private final Map<NotificationChannel, NotificationService> notificationServiceMap;
 
   public void process(SendNotificationCommand command) {
-    notificationServiceMap
-        .get(command.channel())
-        .sendNotification(command);
+    notificationServiceMap.get(command.channel()).sendNotification(command);
   }
 
   public void bulkProcess(List<SendNotificationCommand> commands, String channel) {
-    notificationServiceMap
-        .get(NotificationChannel.from(channel))
-        .sendBulkNotification(commands);
+    notificationServiceMap.get(NotificationChannel.from(channel)).sendBulkNotification(commands);
   }
 }

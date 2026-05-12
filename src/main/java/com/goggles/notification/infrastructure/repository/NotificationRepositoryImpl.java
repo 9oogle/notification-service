@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 public class NotificationRepositoryImpl implements NotificationRepository {
 
   private final NotificationJpaRepository notificationJpaRepository;
+
   @Override
   public Notification createNotification(Notification notification) {
     return notificationJpaRepository.save(notification);

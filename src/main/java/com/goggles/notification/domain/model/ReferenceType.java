@@ -4,7 +4,9 @@ import com.goggles.notification.domain.exception.InvalidNotificationException;
 import com.goggles.notification.domain.exception.NotificationErrorCode;
 
 public enum ReferenceType {
-  ORDER, PAYMENT, COUPON;
+  ORDER,
+  PAYMENT,
+  COUPON;
 
   public static ReferenceType from(String value) {
     if (value == null || value.isBlank()) {

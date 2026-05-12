@@ -11,7 +11,6 @@ import com.goggles.notification.domain.model.ReceiverType;
 import com.goggles.notification.domain.model.ReferenceType;
 import com.goggles.notification.infrastructure.consumer.exception.InvalidOrderEventPayloadException;
 import com.goggles.notification.infrastructure.event.OrderCanceledEvent;
-import com.goggles.notification.infrastructure.event.OrderCompleteEvent;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -75,8 +74,7 @@ public class OrderCancelConsumer {
           NotificationChannel.EMAIL,
           NotificationType.ORDER_CANCELLED.getTitle(),
           NotificationType.ORDER_CANCELLED.formatContent(
-              event.orderId(), event.amount(), event.cancelledAt()
-          ),
+              event.orderId(), event.amount(), event.cancelledAt()),
           Map.of(
               "subtitle", "주문 취소 내역을 확인해 주세요.",
               "orderId", event.orderId(),
@@ -84,9 +82,7 @@ public class OrderCancelConsumer {
               "amount", event.amount(),
               "eventAt", event.cancelledAt(),
               "cancelReason", event.cancelReason(),
-              "supportEmail", "AnnieHa"
-          )
-      );
+              "supportEmail", "AnnieHa"));
     } catch (JsonProcessingException e) {
       throw new InvalidOrderEventPayloadException();
     }

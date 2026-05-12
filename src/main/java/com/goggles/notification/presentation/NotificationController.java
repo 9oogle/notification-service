@@ -26,9 +26,8 @@ public class NotificationController {
       @RequestHeader("X-User-Id") UUID userId,
       @RequestHeader("X-User-Role") String userRole) {
 
-    List<SendNotificationCommand> commands = requests.stream()
-        .map(request -> request.toCommand(notificationType))
-        .toList();
+    List<SendNotificationCommand> commands =
+        requests.stream().map(request -> request.toCommand(notificationType)).toList();
 
     notificationProcessor.bulkProcess(commands, notificationType);
   }

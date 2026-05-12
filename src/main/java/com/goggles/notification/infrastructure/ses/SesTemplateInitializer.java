@@ -23,24 +23,25 @@ public class SesTemplateInitializer implements ApplicationRunner {
   @Override
   public void run(ApplicationArguments args) throws Exception {
     ClassPathResource resource = new ClassPathResource("templates/notification-email-bulk.html");
-    String htmlContent = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+    String htmlContent =
+        new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
 
-    EmailTemplateContent templateContent = EmailTemplateContent.builder()
-        .subject("{{title}}")
-        .html(htmlContent)
-        .build();
+    EmailTemplateContent templateContent =
+        EmailTemplateContent.builder().subject("{{title}}").html(htmlContent).build();
 
     try {
-      sesV2Client.createEmailTemplate(CreateEmailTemplateRequest.builder()
-          .templateName("notification-email-template")
-          .templateContent(templateContent)
-          .build());
+      sesV2Client.createEmailTemplate(
+          CreateEmailTemplateRequest.builder()
+              .templateName("notification-email-template")
+              .templateContent(templateContent)
+              .build());
       log.info("[SES] 템플릿 등록 완료.");
     } catch (AlreadyExistsException e) {
-      sesV2Client.updateEmailTemplate(UpdateEmailTemplateRequest.builder()
-          .templateName("notification-email-template")
-          .templateContent(templateContent)
-          .build());
+      sesV2Client.updateEmailTemplate(
+          UpdateEmailTemplateRequest.builder()
+              .templateName("notification-email-template")
+              .templateContent(templateContent)
+              .build());
       log.info("[SES] 템플릿 업데이트 완료.");
     }
   }

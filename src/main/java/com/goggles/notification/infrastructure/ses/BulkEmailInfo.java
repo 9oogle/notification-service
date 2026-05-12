@@ -23,17 +23,13 @@ public class BulkEmailInfo {
   }
 
   public BulkEmailEntry toSesEntry() {
-    Destination destination = Destination.builder()
-        .toAddresses(this.to)
-        .build();
+    Destination destination = Destination.builder().toAddresses(this.to).build();
 
-    ReplacementTemplate replacementTemplate = ReplacementTemplate.builder()
-        .replacementTemplateData(this.templateData)
-        .build();
+    ReplacementTemplate replacementTemplate =
+        ReplacementTemplate.builder().replacementTemplateData(this.templateData).build();
 
-    ReplacementEmailContent replacementEmailContent = ReplacementEmailContent.builder()
-        .replacementTemplate(replacementTemplate)
-        .build();
+    ReplacementEmailContent replacementEmailContent =
+        ReplacementEmailContent.builder().replacementTemplate(replacementTemplate).build();
 
     return BulkEmailEntry.builder()
         .destination(destination)

@@ -11,7 +11,6 @@ import com.goggles.notification.domain.model.Reference;
 import com.goggles.notification.domain.repository.NotificationRepository;
 import com.goggles.notification.infrastructure.ses.BulkEmailInfo;
 import com.goggles.notification.infrastructure.ses.EmailInfo;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,10 +30,11 @@ import software.amazon.awssdk.services.sesv2.model.Template;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class EmailNotificationServiceImpl implements NotificationService{
+public class EmailNotificationServiceImpl implements NotificationService {
 
   @Value("${aws.ses.send-mail-from}")
   private String sender;
+
   private final SesV2Client sesV2Client;
   private final TemplateEngine templateEngine;
   private final ObjectMapper objectMapper;
@@ -50,12 +50,13 @@ public class EmailNotificationServiceImpl implements NotificationService{
 
     String rendered = templateEngine.process("notification-email", context);
 
-    EmailInfo emailInfo = EmailInfo.builder()
-        .from(sender)
-        .to(List.of(command.receiverEmail()))
-        .subject(command.title())
-        .content(rendered)
-        .build();
+    EmailInfo emailInfo =
+        EmailInfo.builder()
+            .from(sender)
+            .to(List.of(command.receiverEmail()))
+            .subject(command.title())
+            .content(rendered)
+            .build();
 
     Notification notification = toNotification(command);
     notificationRepository.createNotification(notification);
@@ -66,40 +67,42 @@ public class EmailNotificationServiceImpl implements NotificationService{
   @Override
   public void sendBulkNotification(List<SendNotificationCommand> commands) {
     List<List<SendNotificationCommand>> partitions = partition(commands, 50);
-    List<Notification> notifications = commands.stream()
-        .map(this::toNotification)
-        .toList();
+    List<Notification> notifications = commands.stream().map(this::toNotification).toList();
     notificationRepository.createNotifications(notifications);
     partitions.forEach(this::sendBulkPartition);
   }
 
-  private List<List<SendNotificationCommand>> partition(List<SendNotificationCommand> list, int size) {
+  private List<List<SendNotificationCommand>> partition(
+      List<SendNotificationCommand> list, int size) {
     return IntStream.range(0, (list.size() + size - 1) / size)
         .mapToObj(i -> list.subList(i * size, Math.min(i * size + size, list.size())))
         .toList();
   }
 
   private void sendBulkPartition(List<SendNotificationCommand> commands) {
-    List<BulkEmailEntry> entries = commands.stream()
-        .map(command -> {
-          return new BulkEmailInfo(command.receiverEmail(), toTemplateData(command)).toSesEntry();
-        })
-        .toList();
+    List<BulkEmailEntry> entries =
+        commands.stream()
+            .map(
+                command -> {
+                  return new BulkEmailInfo(command.receiverEmail(), toTemplateData(command))
+                      .toSesEntry();
+                })
+            .toList();
 
-    Template template = Template.builder()
-        .templateName("notification-email-template")
-        .templateData("{\"receiverName\":\"고객\"}")
-        .build();
+    Template template =
+        Template.builder()
+            .templateName("notification-email-template")
+            .templateData("{\"receiverName\":\"고객\"}")
+            .build();
 
-    BulkEmailContent bulkEmailContent = BulkEmailContent.builder()
-        .template(template)
-        .build();
+    BulkEmailContent bulkEmailContent = BulkEmailContent.builder().template(template).build();
 
-    SendBulkEmailRequest request = SendBulkEmailRequest.builder()
-        .fromEmailAddress(sender)
-        .bulkEmailEntries(entries)
-        .defaultContent(bulkEmailContent)
-        .build();
+    SendBulkEmailRequest request =
+        SendBulkEmailRequest.builder()
+            .fromEmailAddress(sender)
+            .bulkEmailEntries(entries)
+            .defaultContent(bulkEmailContent)
+            .build();
 
     try {
       sesV2Client.sendBulkEmail(request);
@@ -130,8 +133,6 @@ public class EmailNotificationServiceImpl implements NotificationService{
         command.type(),
         command.channel(),
         command.title(),
-        command.content()
-    );
+        command.content());
   }
-
 }

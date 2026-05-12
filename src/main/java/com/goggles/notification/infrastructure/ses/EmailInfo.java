@@ -30,18 +30,15 @@ public class EmailInfo {
   }
 
   public SendEmailRequest toSendEmailRequest() {
-    Destination destination = Destination.builder()
-        .toAddresses(this.to)
-        .build();
+    Destination destination = Destination.builder().toAddresses(this.to).build();
 
-    Message message = Message.builder()
-        .subject(createContent(this.subject))
-        .body(Body.builder().html(createContent(this.content)).build())
-        .build();
+    Message message =
+        Message.builder()
+            .subject(createContent(this.subject))
+            .body(Body.builder().html(createContent(this.content)).build())
+            .build();
 
-    EmailContent emailContent = EmailContent.builder()
-        .simple(message)
-        .build();
+    EmailContent emailContent = EmailContent.builder().simple(message).build();
 
     return SendEmailRequest.builder()
         .fromEmailAddress(this.from)
@@ -51,9 +48,6 @@ public class EmailInfo {
   }
 
   private Content createContent(String text) {
-    return Content.builder()
-        .charset("UTF-8")
-        .data(text)
-        .build();
+    return Content.builder().charset("UTF-8").data(text).build();
   }
 }

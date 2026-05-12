@@ -5,5 +5,6 @@ import java.util.List;
 
 public interface NotificationService {
   void sendNotification(SendNotificationCommand command);
+
   void sendBulkNotification(List<SendNotificationCommand> commands);
 }

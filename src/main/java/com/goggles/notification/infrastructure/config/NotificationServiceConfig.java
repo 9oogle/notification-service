@@ -16,8 +16,6 @@ public class NotificationServiceConfig {
 
   @Bean
   public Map<NotificationChannel, NotificationService> notificationServiceMap() {
-    return Map.of(
-        NotificationChannel.EMAIL, emailNotificationService
-    );
+    return Map.of(NotificationChannel.EMAIL, emailNotificationService);
   }
 }
