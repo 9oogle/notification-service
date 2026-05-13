@@ -24,10 +24,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "notification_logs")
 public class Notification extends BaseTime {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  @Column(name = "notification_log_id", updatable = false, nullable = false)
-  private UUID notificationLogId;
+  @Id private UUID id;
 
   @Embedded private Receiver receiver;
 
@@ -57,23 +54,6 @@ public class Notification extends BaseTime {
   @Column(name = "failure_reason", columnDefinition = "TEXT")
   private String failureReason;
 
-  private Notification(
-      Receiver receiver,
-      Reference reference,
-      NotificationType type,
-      NotificationChannel channel,
-      String title,
-      String content) {
-    this.receiver = receiver;
-    this.reference = reference;
-    this.type = type;
-    this.channel = channel;
-    this.title = title;
-    this.content = content;
-    this.status = NotificationStatus.SENT;
-    this.sentAt = LocalDateTime.now();
-  }
-
   public static Notification create(
       Receiver receiver,
       Reference reference,
@@ -82,7 +62,37 @@ public class Notification extends BaseTime {
       String title,
       String content) {
     validate(type, channel, title, content);
-    return new Notification(receiver, reference, type, channel, title, content);
+    Notification notification = new Notification();
+    notification.id = UUID.randomUUID();
+    notification.receiver = receiver;
+    notification.reference = reference;
+    notification.type = type;
+    notification.channel = channel;
+    notification.title = title;
+    notification.content = content;
+    notification.status = NotificationStatus.PENDING;
+
+    return notification;
+  }
+
+  public void sentNotification() {
+    this.sentAt = LocalDateTime.now();
+    transitionTo(NotificationStatus.SENT);
+  }
+  public void failedNotification(String failureReason) {
+    this.failureReason = failureReason;
+    transitionTo(NotificationStatus.FAILED);
+  }
+
+
+  private void transitionTo(NotificationStatus next) {
+    if (!this.status.canTransitionTo(next)) {
+      throw new InvalidNotificationException(
+          NotificationErrorCode.INVALID_NOTIFICATION_STATUS,
+          this.status.getDisplayName(),
+          next.getDisplayName());
+    }
+    this.status = next;
   }
 
   private static void validate(

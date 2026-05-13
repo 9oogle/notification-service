@@ -15,11 +15,10 @@ public record CreateNotificationRequest(
     String receiverName,
     String referenceType,
     UUID referenceId,
-    String channel,
     String title,
     String content,
     Map<String, Object> templateVariables) {
-  public SendNotificationCommand toCommand(String notificationType) {
+  public SendNotificationCommand toCommand(String notificationType, String channel) {
     return new SendNotificationCommand(
         receiverId,
         ReceiverType.from(receiverType),

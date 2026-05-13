@@ -6,14 +6,18 @@ import com.goggles.notification.application.dto.SendNotificationCommand;
 import com.goggles.notification.domain.exception.InvalidNotificationException;
 import com.goggles.notification.domain.exception.NotificationErrorCode;
 import com.goggles.notification.domain.model.Notification;
+import com.goggles.notification.domain.model.NotificationStatus;
 import com.goggles.notification.domain.model.Receiver;
 import com.goggles.notification.domain.model.Reference;
 import com.goggles.notification.domain.repository.NotificationRepository;
 import com.goggles.notification.infrastructure.ses.BulkEmailInfo;
 import com.goggles.notification.infrastructure.ses.EmailInfo;
+import jakarta.transaction.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +45,7 @@ public class EmailNotificationServiceImpl implements NotificationService {
   private final NotificationRepository notificationRepository;
 
   @Override
+  @Transactional
   public void sendNotification(SendNotificationCommand command) {
     Context context = new Context();
     context.setVariable("title", command.title());
@@ -59,17 +64,37 @@ public class EmailNotificationServiceImpl implements NotificationService {
             .build();
 
     Notification notification = toNotification(command);
-    notificationRepository.createNotification(notification);
+    notification = notificationRepository.createNotification(notification);
 
-    sesV2Client.sendEmail(emailInfo.toSendEmailRequest());
+    // todo: outbox/inbox 고도화 예정
+    try {
+      sesV2Client.sendEmail(emailInfo.toSendEmailRequest());
+      notification.sentNotification();
+    } catch (Exception e) {
+      log.error("[Email] 발송 실패, 트랜잭션 롤백", e);
+      notification.failedNotification("서버 에러로 인한 발송 실패");
+      throw e;
+    }
   }
 
   @Override
+  @Transactional
   public void sendBulkNotification(List<SendNotificationCommand> commands) {
     List<List<SendNotificationCommand>> partitions = partition(commands, 50);
     List<Notification> notifications = commands.stream().map(this::toNotification).toList();
-    notificationRepository.createNotifications(notifications);
-    partitions.forEach(this::sendBulkPartition);
+    notifications = notificationRepository.createNotifications(notifications);
+
+    // todo: outbox/inbox 고도화 예정
+    try {
+      partitions.forEach(this::sendBulkPartition);
+      notificationRepository.updateNotificationsSent(
+          notifications.stream().map(Notification::getId).toList());
+    } catch (Exception e) {
+      log.error("[Email] 발송 실패, 트랜잭션 롤백", e);
+      notificationRepository.updateNotificationsFailed(
+          notifications.stream().map(Notification::getId).toList(), "서버 에러로 인한 발송 실패");
+      throw e;
+    }
   }
 
   private List<List<SendNotificationCommand>> partition(

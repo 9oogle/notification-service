@@ -30,6 +30,7 @@ public enum NotificationErrorCode {
   INVALID_TITLE_LENGTH("알림 제목은 100자를 초과할 수 없습니다."),
   MISSING_CONTENT("알림 내용은 필수입니다."),
   INVALID_TEMPLATE_DATA("템플릿 데이터 직렬화에 실패했습니다."),
+  INVALID_NOTIFICATION_STATUS("유효하지 않은 알림 상태입니다: %s"),
   INVALID_CONTENT_LENGTH("알림 내용은 1000자를 초과할 수 없습니다.");
 
   private final String message;
