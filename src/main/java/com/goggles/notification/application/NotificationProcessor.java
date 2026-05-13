@@ -22,9 +22,7 @@ public class NotificationProcessor {
   public void bulkProcess(List<SendNotificationCommand> commands) {
     commands.stream()
         .collect(Collectors.groupingBy(SendNotificationCommand::channel))
-        .forEach((channel, grouped) ->
-            getService(channel).sendBulkNotification(grouped)
-        );
+        .forEach((channel, grouped) -> getService(channel).sendBulkNotification(grouped));
   }
 
   private NotificationService getService(NotificationChannel channel) {

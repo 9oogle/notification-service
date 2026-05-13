@@ -8,8 +8,6 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
@@ -79,11 +77,11 @@ public class Notification extends BaseTime {
     this.sentAt = LocalDateTime.now();
     transitionTo(NotificationStatus.SENT);
   }
+
   public void failedNotification(String failureReason) {
     this.failureReason = failureReason;
     transitionTo(NotificationStatus.FAILED);
   }
-
 
   private void transitionTo(NotificationStatus next) {
     if (!this.status.canTransitionTo(next)) {

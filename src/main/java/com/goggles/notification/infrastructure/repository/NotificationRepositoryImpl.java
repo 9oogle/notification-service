@@ -1,7 +1,6 @@
 package com.goggles.notification.infrastructure.repository;
 
 import com.goggles.notification.domain.model.Notification;
-import com.goggles.notification.domain.model.NotificationStatus;
 import com.goggles.notification.domain.repository.NotificationRepository;
 import java.util.List;
 import java.util.UUID;

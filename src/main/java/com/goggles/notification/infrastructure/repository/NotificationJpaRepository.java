@@ -10,14 +10,16 @@ import org.springframework.data.repository.query.Param;
 
 public interface NotificationJpaRepository extends JpaRepository<Notification, UUID> {
   @Modifying(clearAutomatically = true)
-  @Query("UPDATE Notification n "
-      + "SET n.status = com.goggles.notification.domain.model.NotificationStatus.SENT "
-      + "WHERE n.id IN :ids")
+  @Query(
+      "UPDATE Notification n "
+          + "SET n.status = com.goggles.notification.domain.model.NotificationStatus.SENT "
+          + "WHERE n.id IN :ids")
   void updateSentByIds(@Param("ids") List<UUID> ids);
 
   @Modifying(clearAutomatically = true)
-  @Query("UPDATE Notification n "
-      + "SET n.status = com.goggles.notification.domain.model.NotificationStatus.FAILED, n.failureReason = :failureReason "
-      + "WHERE n.id IN :ids")
+  @Query(
+      "UPDATE Notification n "
+          + "SET n.status = com.goggles.notification.domain.model.NotificationStatus.FAILED, n.failureReason = :failureReason "
+          + "WHERE n.id IN :ids")
   void updateFailedByIds(@Param("ids") List<UUID> ids, String failureReason);
 }

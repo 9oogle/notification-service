@@ -28,9 +28,7 @@ public class NotificationController {
       @RequestHeader("X-User-Role") String userRole) {
 
     List<SendNotificationCommand> commands =
-        requests.stream()
-            .map(request -> request.toCommand(notificationType, channel))
-            .toList();
+        requests.stream().map(request -> request.toCommand(notificationType, channel)).toList();
 
     notificationProcessor.bulkProcess(commands);
   }
