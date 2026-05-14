@@ -2,6 +2,7 @@ package com.goggles.notification.infrastructure.consumer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.goggles.common.event.annotation.IdempotentConsumer;
 import com.goggles.notification.application.NotificationProcessor;
 import com.goggles.notification.application.dto.SendNotificationCommand;
 import com.goggles.notification.domain.model.NotificationChannel;
@@ -9,7 +10,7 @@ import com.goggles.notification.domain.model.NotificationType;
 import com.goggles.notification.domain.model.ReceiverType;
 import com.goggles.notification.domain.model.ReferenceType;
 import com.goggles.notification.infrastructure.consumer.exception.InvalidOrderEventPayloadException;
-import com.goggles.notification.infrastructure.event.OrderCompleteEvent;
+import com.goggles.notification.infrastructure.event.OrderCompleteMessage;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +30,7 @@ public class OrderCompleteConsumer {
   private final ObjectMapper objectMapper;
 
   @KafkaListener(topics = TOPIC, groupId = GROUP_NAME)
-  //  @IdempotentConsumer(GROUP_NAME)
+  @IdempotentConsumer(GROUP_NAME)
   public void consume(ConsumerRecord<String, String> record, Acknowledgment ack) {
     log.info(
         "[Kafka] Received {} | partition={}, offset={}",
@@ -61,7 +62,7 @@ public class OrderCompleteConsumer {
 
   private SendNotificationCommand toCommand(String value) {
     try {
-      OrderCompleteEvent event = objectMapper.readValue(value, OrderCompleteEvent.class);
+      OrderCompleteMessage event = objectMapper.readValue(value, OrderCompleteMessage.class);
       return new SendNotificationCommand(
           event.customerId(),
           ReceiverType.USER,

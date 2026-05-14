@@ -10,7 +10,7 @@ import com.goggles.notification.domain.model.NotificationType;
 import com.goggles.notification.domain.model.ReceiverType;
 import com.goggles.notification.domain.model.ReferenceType;
 import com.goggles.notification.infrastructure.consumer.exception.InvalidOrderEventPayloadException;
-import com.goggles.notification.infrastructure.event.OrderCanceledEvent;
+import com.goggles.notification.infrastructure.event.OrderCanceledMessage;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,7 +62,7 @@ public class OrderCancelConsumer {
 
   private SendNotificationCommand toCommand(String value) {
     try {
-      OrderCanceledEvent event = objectMapper.readValue(value, OrderCanceledEvent.class);
+      OrderCanceledMessage event = objectMapper.readValue(value, OrderCanceledMessage.class);
       return new SendNotificationCommand(
           event.customerId(),
           ReceiverType.USER,
