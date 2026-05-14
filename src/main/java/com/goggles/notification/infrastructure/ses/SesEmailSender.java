@@ -71,33 +71,31 @@ public class SesEmailSender implements EmailSender {
       notificationRepository.updateNotificationsSent(event.notificationIds(), LocalDateTime.now());
     } catch (Exception e) {
       log.error("[Bulk Email] 발송 실패. cause: {}", e.getMessage(), e);
-      notificationRepository.updateNotificationsFailed(
-          event.notificationIds(), "서버 에러로 인한 발송 실패"
-      );
+      notificationRepository.updateNotificationsFailed(event.notificationIds(), "서버 에러로 인한 발송 실패");
       throw e;
     }
   }
 
-  private void sendBulkPartition(
-      List<BulkEmailSendRequestedEvent.BulkEmailTarget> targets
-  ) {
-    List<BulkEmailEntry> entries = targets.stream()
-        .map(target -> new BulkEmailInfo(
-            target.receiverEmail(),
-            toTemplateData(target)
-        ).toSesEntry())
-        .toList();
+  private void sendBulkPartition(List<BulkEmailSendRequestedEvent.BulkEmailTarget> targets) {
+    List<BulkEmailEntry> entries =
+        targets.stream()
+            .map(
+                target ->
+                    new BulkEmailInfo(target.receiverEmail(), toTemplateData(target)).toSesEntry())
+            .toList();
 
-    Template defaultTemplate = Template.builder()
-        .templateName("notification-email-template")
-        .templateData("{\"receiverName\":\"고객\"}")
-        .build();
+    Template defaultTemplate =
+        Template.builder()
+            .templateName("notification-email-template")
+            .templateData("{\"receiverName\":\"고객\"}")
+            .build();
 
-    SendBulkEmailRequest request = SendBulkEmailRequest.builder()
-        .fromEmailAddress(sender)
-        .bulkEmailEntries(entries)
-        .defaultContent(BulkEmailContent.builder().template(defaultTemplate).build())
-        .build();
+    SendBulkEmailRequest request =
+        SendBulkEmailRequest.builder()
+            .fromEmailAddress(sender)
+            .bulkEmailEntries(entries)
+            .defaultContent(BulkEmailContent.builder().template(defaultTemplate).build())
+            .build();
 
     try {
       sesV2Client.sendBulkEmail(request);

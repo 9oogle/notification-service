@@ -28,16 +28,30 @@ public class BulkEmailSendRequestConsumer {
   @KafkaListener(topics = TOPIC, groupId = GROUP_NAME)
   @IdempotentConsumer(GROUP_NAME)
   public void consume(ConsumerRecord<String, String> record, Acknowledgment ack) {
-    log.info("[Kafka] Received {} | partition={}, offset={}", TOPIC, record.partition(), record.offset());
+    log.info(
+        "[Kafka] Received {} | partition={}, offset={}",
+        TOPIC,
+        record.partition(),
+        record.offset());
 
     try {
       handler.bulkHandle(toEvent(record.value()));
       ack.acknowledge();
     } catch (InvalidOrderEventPayloadException e) {
-      log.error("페이로드 파싱 실패, 스킵 처리 topic={}, partition={}, offset={}", TOPIC, record.partition(), record.offset(), e);
+      log.error(
+          "페이로드 파싱 실패, 스킵 처리 topic={}, partition={}, offset={}",
+          TOPIC,
+          record.partition(),
+          record.offset(),
+          e);
       ack.acknowledge();
     } catch (Exception e) {
-      log.error("처리 실패, 재처리 예정 topic={}, partition={}, offset={}", TOPIC, record.partition(), record.offset(), e);
+      log.error(
+          "처리 실패, 재처리 예정 topic={}, partition={}, offset={}",
+          TOPIC,
+          record.partition(),
+          record.offset(),
+          e);
       throw new RuntimeException("email-send 처리 실패", e);
     }
   }
@@ -49,15 +63,15 @@ public class BulkEmailSendRequestConsumer {
       return new BulkEmailSendRequestedEvent(
           message.notificationIds(),
           message.targets().stream()
-              .map(t -> new BulkEmailSendRequestedEvent.BulkEmailTarget(
-                  t.notificationId(),
-                  t.receiverEmail(),
-                  t.receiverName(),
-                  t.title(),
-                  t.templateVariables()
-              ))
-              .toList()
-      );
+              .map(
+                  t ->
+                      new BulkEmailSendRequestedEvent.BulkEmailTarget(
+                          t.notificationId(),
+                          t.receiverEmail(),
+                          t.receiverName(),
+                          t.title(),
+                          t.templateVariables()))
+              .toList());
     } catch (JsonProcessingException e) {
       throw new InvalidEmailEventPayloadException();
     }

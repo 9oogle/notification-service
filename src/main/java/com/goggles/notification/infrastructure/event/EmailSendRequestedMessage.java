@@ -9,5 +9,4 @@ public record EmailSendRequestedMessage(
     String receiverName,
     String title,
     String content,
-    Map<String, Object> templateVariables
-) {}
+    Map<String, Object> templateVariables) {}

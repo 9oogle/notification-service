@@ -19,6 +19,7 @@ public class NotificationEventImpl implements NotificationEvents {
   private final Events events;
 
   public static final String DOMAIN = "NOTIFICATION";
+
   @Override
   public void emailSendRequested(EmailSendRequestedEvent event) {
     events.trigger(

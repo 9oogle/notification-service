@@ -36,41 +36,34 @@ public class EmailNotificationServiceImpl implements NotificationService {
             command.receiverName(),
             notification.getTitle(),
             notification.getContent(),
-            command.templateVariables()
-        )
-    );
+            command.templateVariables()));
   }
 
   @Override
   @Transactional
   public void sendBulkNotification(List<SendNotificationCommand> commands) {
-    List<Notification> notifications = commands.stream()
-        .map(this::toNotification)
-        .toList();
+    List<Notification> notifications = commands.stream().map(this::toNotification).toList();
     notifications = notificationRepository.createNotifications(notifications);
 
     List<Notification> savedNotifications = notifications;
     List<BulkEmailSendRequestedEvent.BulkEmailTarget> targets =
         IntStream.range(0, commands.size())
-            .mapToObj(i -> {
-              SendNotificationCommand command = commands.get(i);
-              UUID notificationId = savedNotifications.get(i).getId();
-              return new BulkEmailSendRequestedEvent.BulkEmailTarget(
-                  notificationId,
-                  command.receiverEmail(),
-                  command.receiverName(),
-                  command.title(),
-                  command.templateVariables()
-              );
-            })
+            .mapToObj(
+                i -> {
+                  SendNotificationCommand command = commands.get(i);
+                  UUID notificationId = savedNotifications.get(i).getId();
+                  return new BulkEmailSendRequestedEvent.BulkEmailTarget(
+                      notificationId,
+                      command.receiverEmail(),
+                      command.receiverName(),
+                      command.title(),
+                      command.templateVariables());
+                })
             .toList();
 
     notificationEvents.bulkEmailSendRequested(
         new BulkEmailSendRequestedEvent(
-            notifications.stream().map(Notification::getId).toList(),
-            targets
-        )
-    );
+            notifications.stream().map(Notification::getId).toList(), targets));
   }
 
   public Notification toNotification(SendNotificationCommand command) {

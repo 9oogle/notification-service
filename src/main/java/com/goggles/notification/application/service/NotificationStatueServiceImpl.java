@@ -13,19 +13,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class NotificationStatueServiceImpl implements NotificationStatusService{
+public class NotificationStatueServiceImpl implements NotificationStatusService {
   private final NotificationRepository notificationRepository;
 
   @Transactional
   public void markSent(UUID notificationId) {
-    notificationRepository.findById(notificationId)
+    notificationRepository
+        .findById(notificationId)
         .orElseThrow(NotFoundNotificationException::new)
         .sentNotification();
   }
 
   @Transactional
   public void markFailed(UUID notificationId, String reason) {
-    notificationRepository.findById(notificationId)
+    notificationRepository
+        .findById(notificationId)
         .orElseThrow(NotFoundNotificationException::new)
         .failedNotification(reason);
   }
