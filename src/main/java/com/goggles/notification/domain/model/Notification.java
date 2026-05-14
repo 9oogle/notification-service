@@ -83,7 +83,7 @@ public class Notification extends BaseTime {
     transitionTo(NotificationStatus.FAILED);
   }
 
-  private void transitionTo(NotificationStatus next) {
+  public void transitionTo(NotificationStatus next) {
     if (!this.status.canTransitionTo(next)) {
       throw new InvalidNotificationException(
           NotificationErrorCode.INVALID_NOTIFICATION_STATUS,
@@ -113,10 +113,5 @@ public class Notification extends BaseTime {
     if (content.length() > 1000) {
       throw new InvalidNotificationException(NotificationErrorCode.INVALID_CONTENT_LENGTH);
     }
-  }
-
-  public void markFailed(String failureReason) {
-    this.status = NotificationStatus.FAILED;
-    this.failureReason = failureReason;
   }
 }

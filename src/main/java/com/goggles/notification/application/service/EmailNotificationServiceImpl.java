@@ -1,151 +1,76 @@
 package com.goggles.notification.application.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.goggles.notification.application.dto.SendNotificationCommand;
-import com.goggles.notification.domain.exception.InvalidNotificationException;
-import com.goggles.notification.domain.exception.NotificationErrorCode;
+import com.goggles.notification.domain.event.BulkEmailSendRequestedEvent;
+import com.goggles.notification.domain.event.EmailSendRequestedEvent;
+import com.goggles.notification.domain.event.NotificationEvents;
 import com.goggles.notification.domain.model.Notification;
 import com.goggles.notification.domain.model.Receiver;
 import com.goggles.notification.domain.model.Reference;
 import com.goggles.notification.domain.repository.NotificationRepository;
-import com.goggles.notification.infrastructure.ses.BulkEmailInfo;
-import com.goggles.notification.infrastructure.ses.EmailInfo;
 import jakarta.transaction.Transactional;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
-import software.amazon.awssdk.services.sesv2.SesV2Client;
-import software.amazon.awssdk.services.sesv2.model.BulkEmailContent;
-import software.amazon.awssdk.services.sesv2.model.BulkEmailEntry;
-import software.amazon.awssdk.services.sesv2.model.SendBulkEmailRequest;
-import software.amazon.awssdk.services.sesv2.model.Template;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class EmailNotificationServiceImpl implements NotificationService {
-
-  @Value("${aws.ses.send-mail-from}")
-  private String sender;
-
-  private final SesV2Client sesV2Client;
-  private final TemplateEngine templateEngine;
-  private final ObjectMapper objectMapper;
+  private final NotificationEvents notificationEvents;
   private final NotificationRepository notificationRepository;
 
   @Override
   @Transactional
   public void sendNotification(SendNotificationCommand command) {
-    Context context = new Context();
-    context.setVariable("title", command.title());
-    context.setVariable("receiverName", command.receiverName());
-    context.setVariable("supportEmail", "AnnieHa@goggles.com");
-    command.templateVariables().forEach(context::setVariable);
-
-    String rendered = templateEngine.process("notification-email", context);
-
-    EmailInfo emailInfo =
-        EmailInfo.builder()
-            .from(sender)
-            .to(List.of(command.receiverEmail()))
-            .subject(command.title())
-            .content(rendered)
-            .build();
-
     Notification notification = toNotification(command);
-    notification = notificationRepository.createNotification(notification);
 
-    // todo: outbox/inbox 고도화 예정
-    try {
-      sesV2Client.sendEmail(emailInfo.toSendEmailRequest());
-      notification.sentNotification();
-    } catch (Exception e) {
-      log.error("[Email] 발송 실패, 트랜잭션 롤백", e);
-      notification.failedNotification("서버 에러로 인한 발송 실패");
-      throw e;
-    }
+    notification = notificationRepository.createNotification(notification);
+    notificationEvents.emailSendRequested(
+        new EmailSendRequestedEvent(
+            notification.getId(),
+            command.receiverEmail(),
+            command.receiverName(),
+            notification.getTitle(),
+            notification.getContent(),
+            command.templateVariables()
+        )
+    );
   }
 
   @Override
   @Transactional
   public void sendBulkNotification(List<SendNotificationCommand> commands) {
-    List<List<SendNotificationCommand>> partitions = partition(commands, 50);
-    List<Notification> notifications = commands.stream().map(this::toNotification).toList();
+    List<Notification> notifications = commands.stream()
+        .map(this::toNotification)
+        .toList();
     notifications = notificationRepository.createNotifications(notifications);
 
-    // todo: outbox/inbox 고도화 예정
-    try {
-      partitions.forEach(this::sendBulkPartition);
-      notificationRepository.updateNotificationsSent(
-          notifications.stream().map(Notification::getId).toList());
-    } catch (Exception e) {
-      log.error("[Email] 발송 실패, 트랜잭션 롤백", e);
-      notificationRepository.updateNotificationsFailed(
-          notifications.stream().map(Notification::getId).toList(), "서버 에러로 인한 발송 실패");
-      throw e;
-    }
-  }
-
-  private List<List<SendNotificationCommand>> partition(
-      List<SendNotificationCommand> list, int size) {
-    return IntStream.range(0, (list.size() + size - 1) / size)
-        .mapToObj(i -> list.subList(i * size, Math.min(i * size + size, list.size())))
-        .toList();
-  }
-
-  private void sendBulkPartition(List<SendNotificationCommand> commands) {
-    List<BulkEmailEntry> entries =
-        commands.stream()
-            .map(
-                command -> {
-                  return new BulkEmailInfo(command.receiverEmail(), toTemplateData(command))
-                      .toSesEntry();
-                })
+    List<Notification> savedNotifications = notifications;
+    List<BulkEmailSendRequestedEvent.BulkEmailTarget> targets =
+        IntStream.range(0, commands.size())
+            .mapToObj(i -> {
+              SendNotificationCommand command = commands.get(i);
+              UUID notificationId = savedNotifications.get(i).getId();
+              return new BulkEmailSendRequestedEvent.BulkEmailTarget(
+                  notificationId,
+                  command.receiverEmail(),
+                  command.receiverName(),
+                  command.title(),
+                  command.templateVariables()
+              );
+            })
             .toList();
 
-    Template template =
-        Template.builder()
-            .templateName("notification-email-template")
-            .templateData("{\"receiverName\":\"고객\"}")
-            .build();
-
-    BulkEmailContent bulkEmailContent = BulkEmailContent.builder().template(template).build();
-
-    SendBulkEmailRequest request =
-        SendBulkEmailRequest.builder()
-            .fromEmailAddress(sender)
-            .bulkEmailEntries(entries)
-            .defaultContent(bulkEmailContent)
-            .build();
-
-    try {
-      sesV2Client.sendBulkEmail(request);
-    } catch (Exception e) {
-      log.error("[Bulk Email] 파티션 발송 실패. cause: {}", e.getMessage(), e);
-      throw e;
-    }
-  }
-
-  private String toTemplateData(SendNotificationCommand command) {
-    Map<String, Object> data = new HashMap<>(command.templateVariables());
-    data.put("receiverName", command.receiverName());
-    data.put("title", command.title());
-    data.put("supportEmail", "AnnieHa@goggles.com");
-
-    try {
-      return objectMapper.writeValueAsString(data);
-    } catch (JsonProcessingException e) {
-      log.error("[Bulk Email] 템플릿 데이터 직렬화 실패. cause: {}", e.getMessage(), e);
-      throw new InvalidNotificationException(NotificationErrorCode.INVALID_TEMPLATE_DATA);
-    }
+    notificationEvents.bulkEmailSendRequested(
+        new BulkEmailSendRequestedEvent(
+            notifications.stream().map(Notification::getId).toList(),
+            targets
+        )
+    );
   }
 
   public Notification toNotification(SendNotificationCommand command) {
