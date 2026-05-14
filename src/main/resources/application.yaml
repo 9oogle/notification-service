@@ -33,3 +33,6 @@ aws:
     secret-key: ${AWS_SECRET_KEY}
     send-mail-from: ${ADMIN_EMAIL}
   region: ${AWS_REGION}
+
+support:
+  email: ${SUPPORT_EMAIL}
