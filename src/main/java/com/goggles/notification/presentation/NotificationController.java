@@ -3,6 +3,7 @@ package com.goggles.notification.presentation;
 import com.goggles.notification.application.NotificationProcessor;
 import com.goggles.notification.application.dto.SendNotificationCommand;
 import com.goggles.notification.presentation.dto.CreateNotificationRequest;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -21,11 +22,15 @@ public class NotificationController {
 
   @PostMapping("/{notificationType}/{channel}/bulk")
   public void sendBulkNotification(
-      @RequestBody List<CreateNotificationRequest> requests,
+      @RequestBody @Valid List<@Valid CreateNotificationRequest> requests,
       @PathVariable String notificationType,
       @PathVariable String channel,
       @RequestHeader("X-User-Id") UUID userId,
       @RequestHeader("X-User-Role") String userRole) {
+
+    if (requests.isEmpty()) {
+      throw new IllegalArgumentException("요청 목록이 비어있습니다");
+    }
 
     List<SendNotificationCommand> commands =
         requests.stream().map(request -> request.toCommand(notificationType, channel)).toList();
