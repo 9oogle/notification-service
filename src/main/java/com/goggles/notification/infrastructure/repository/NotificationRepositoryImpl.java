@@ -39,9 +39,4 @@ public class NotificationRepositoryImpl implements NotificationRepository {
   public Optional<Notification> findById(UUID id) {
     return notificationJpaRepository.findById(id);
   }
-
-  @Override
-  public List<Notification> findByIds(List<UUID> ids) {
-    return notificationJpaRepository.findAllById(ids);
-  }
 }

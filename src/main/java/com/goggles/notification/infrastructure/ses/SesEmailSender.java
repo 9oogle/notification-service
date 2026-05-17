@@ -7,8 +7,6 @@ import com.goggles.notification.domain.event.BulkEmailSendRequestedEvent;
 import com.goggles.notification.domain.event.EmailSendRequestedEvent;
 import com.goggles.notification.domain.exception.InvalidNotificationException;
 import com.goggles.notification.domain.exception.NotificationErrorCode;
-import com.goggles.notification.domain.repository.NotificationRepository;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +36,6 @@ public class SesEmailSender implements EmailSender {
   private final SesV2Client sesV2Client;
   private final TemplateEngine templateEngine;
   private final ObjectMapper objectMapper;
-  private final NotificationRepository notificationRepository;
 
   @Override
   public void send(EmailSendRequestedEvent event) {
@@ -65,15 +62,7 @@ public class SesEmailSender implements EmailSender {
   public void sendBulk(BulkEmailSendRequestedEvent event) {
     List<BulkEmailSendRequestedEvent.BulkEmailTarget> targets = event.targets();
     List<List<BulkEmailSendRequestedEvent.BulkEmailTarget>> partitions = partition(targets, 50);
-
-    try {
-      partitions.forEach(this::sendBulkPartition);
-      notificationRepository.updateNotificationsSent(event.notificationIds(), LocalDateTime.now());
-    } catch (Exception e) {
-      log.error("[Bulk Email] 발송 실패. cause: {}", e.getMessage(), e);
-      notificationRepository.updateNotificationsFailed(event.notificationIds(), "서버 에러로 인한 발송 실패");
-      throw e;
-    }
+    partitions.forEach(this::sendBulkPartition);
   }
 
   private void sendBulkPartition(List<BulkEmailSendRequestedEvent.BulkEmailTarget> targets) {

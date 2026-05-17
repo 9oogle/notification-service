@@ -1,8 +1,6 @@
 package com.goggles.notification.application.service;
 
 import com.goggles.notification.domain.exception.NotFoundNotificationException;
-import com.goggles.notification.domain.model.Notification;
-import com.goggles.notification.domain.model.NotificationStatus;
 import com.goggles.notification.domain.repository.NotificationRepository;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,15 +32,11 @@ public class NotificationStatueServiceImpl implements NotificationStatusService 
 
   @Transactional
   public void markAllSent(List<UUID> notificationIds) {
-    List<Notification> notifications = notificationRepository.findByIds(notificationIds);
-    notifications.forEach(n -> n.transitionTo(NotificationStatus.SENT));
     notificationRepository.updateNotificationsSent(notificationIds, LocalDateTime.now());
   }
 
   @Transactional
   public void markAllFailed(List<UUID> notificationIds, String reason) {
-    List<Notification> notifications = notificationRepository.findByIds(notificationIds);
-    notifications.forEach(n -> n.transitionTo(NotificationStatus.FAILED));
     notificationRepository.updateNotificationsFailed(notificationIds, reason);
   }
 }
