@@ -36,11 +36,12 @@ tasks.withType(JavaCompile).configureEach {
 
 dependencies {
 	// common-library
-	implementation("com.goggles:common-library:1.0.4")
+	implementation("com.goggles:common-library:1.0.6")
 
 	// spring boot
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
 	// spring boot cloud
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
@@ -60,6 +61,10 @@ dependencies {
 	// lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// aws ses
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'software.amazon.awssdk:sesv2:2.43.2'
 
 	// db
 	runtimeOnly 'org.postgresql:postgresql'

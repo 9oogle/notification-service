@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background-color: #f4f4f4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    .wrapper { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e5e5e5; }
+    .header { background-color: #1a1a2e; padding: 32px 40px; text-align: center; }
+    .header .logo { color: #ffffff; font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
+    .header .logo span { color: #7f77dd; }
+    .body { padding: 40px; }
+    .greeting { font-size: 15px; color: #444; margin-bottom: 24px; line-height: 1.6; }
+    .greeting strong { color: #1a1a2e; font-weight: 600; }
+    .title-block { margin-bottom: 28px; }
+    .title-block h1 { font-size: 22px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px; }
+    .title-block .subtitle { font-size: 13px; color: #888; }
+    .order-box { background: #f9f9fb; border-radius: 10px; padding: 24px; margin-bottom: 24px; border: 1px solid #ebebf0; }
+    .order-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 14px; }
+    .order-row:not(:last-child) { border-bottom: 1px solid #ebebf0; }
+    .order-row .label { color: #888; }
+    .order-row .value { color: #1a1a2e; font-weight: 500; padding-left: 8px; }
+    .order-row.total .label { font-weight: 600; color: #1a1a2e; font-size: 15px; }
+    .order-row.total .value { font-weight: 700; color: #534ab7; font-size: 17px; }
+    .cancel-box { background: #fff5f5; border-radius: 10px; padding: 24px; margin-bottom: 24px; border: 1px solid #ffd6d6; }
+    .cancel-box .cancel-label { font-size: 13px; color: #e53935; font-weight: 600; margin-bottom: 8px; }
+    .cancel-box .cancel-reason { font-size: 14px; color: #555; line-height: 1.6; }
+    .content-block { font-size: 14px; color: #555; line-height: 1.8; margin-bottom: 28px; }
+    .cta { text-align: center; margin: 32px 0; }
+    .cta a { display: inline-block; background: #534ab7; color: #ffffff; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-size: 15px; font-weight: 500; letter-spacing: -0.2px; }
+    .footer { background: #f9f9fb; padding: 24px 40px; text-align: center; border-top: 1px solid #f0f0f0; }
+    .footer p { font-size: 12px; color: #aaa; line-height: 1.8; }
+    .footer a { color: #888; text-decoration: none; }
+    .badge { display: inline-block; background: #eeedfe; color: #534ab7; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="header">
+    <div class="logo">Goggle<span>s</span></div>
+  </div>
+  <div class="body">
+    <div class="greeting">
+      안녕하세요, <strong>{{receiverName}}</strong> 님.<br>
+      아래 내용을 확인해 주세요.
+    </div>
+
+    <div class="title-block">
+      <span class="badge">{{badge}}</span>
+      <h1>{{title}}</h1>
+      <p class="subtitle">{{subtitle}}</p>
+    </div>
+
+    <div class="order-box">
+      <div class="order-row">
+        <span class="label">주문번호</span>
+        <span class="value">{{orderId}}</span>
+      </div>
+      <div class="order-row">
+        <span class="label">상품명</span>
+        <span class="value">{{orderName}}</span>
+      </div>
+      <div class="order-row">
+        <span class="label">일시</span>
+        <span class="value">{{eventAt}}</span>
+      </div>
+      <div class="order-row total">
+        <span class="label">금액</span>
+        <span class="value">{{amount}}원</span>
+      </div>
+    </div>
+
+    {{#cancelReason}}
+    <div class="cancel-box">
+      <div class="cancel-label">취소 사유</div>
+      <div class="cancel-reason">{{cancelReason}}</div>
+    </div>
+    {{/cancelReason}}
+
+  </div>
+  <div class="footer">
+    <p>
+      본 메일은 발신 전용입니다. 문의는 <a href="mailto:{{supportEmail}}">{{supportEmail}}</a>으로 연락해 주세요.<br>
+      © 2025 Goggles. All rights reserved.
+    </p>
+  </div>
+</div>
+</body>
+</html>
