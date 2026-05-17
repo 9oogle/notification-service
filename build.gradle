@@ -3,6 +3,7 @@ plugins {
 	id 'org.springframework.boot' version '3.5.13'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'com.diffplug.spotless' version '6.25.0'
+	id 'io.gatling.gradle' version '3.13.5.2'
 }
 
 group = 'com.goggles'
@@ -12,6 +13,17 @@ java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(21)
 	}
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+}
+
+gatling {
+	jvmArgs = [
+			'--add-opens=java.base/java.lang=ALL-UNNAMED',
+			'--add-opens=java.base/java.util=ALL-UNNAMED',
+			'-Xmx1g',
+			'-Dfile.encoding=UTF-8'
+	]
 }
 
 repositories {
@@ -22,6 +34,13 @@ repositories {
 			username = providers.gradleProperty("GitHubPackagesUsername").get()
 			password = providers.gradleProperty("GitHubPackagesPassword").get()
 		}
+	}
+}
+
+sourceSets {
+	gatling {
+		java.srcDirs = ["src/gatling/java"]
+		resources.srcDirs = ["src/gatling/resources"]
 	}
 }
 
@@ -76,6 +95,8 @@ dependencies {
 	testImplementation 'org.testcontainers:postgresql'
 	testImplementation 'org.mockito:mockito-core'
 	testRuntimeOnly  'net.bytebuddy:byte-buddy-agent'
+	testImplementation 'p6spy:p6spy:3.9.1'
+	implementation 'org.mockito:mockito-core'
 }
 
 dependencyManagement {
@@ -96,14 +117,4 @@ spotless {
 
 tasks.named('test') {
 	useJUnitPlatform()
-}
-
-tasks.withType(Test).configureEach {
-	doFirst {
-		def byteBuddyAgent = configurations.testRuntimeClasspath.files.find { it.name.startsWith('byte-buddy-agent-') }
-	}
-	if (byteBuddyAgent == null) {
-		throw new GradleException("byte-buddy-agent를 testRuntimeClasspath에서 찾을 수 없습니다.")
-	}
-	jvmArgs "-javaagent:${byteBuddyAgent.absolutePath}"
 }
