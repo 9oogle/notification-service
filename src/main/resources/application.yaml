@@ -5,8 +5,9 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:local}
     group:
       local: "local,topics"
-      dev: "dev,topics"
+      dev: "dev,topics,kafka"
       prod: "prod,kafka,topics"
+      load-test: "local,topics"
   config:
     import:
       - "optional:configserver: "
@@ -23,6 +24,8 @@ server:
   port: 9012
 
 eureka:
+  instance:
+    prefer-ip-address: true
   client:
     service-url:
       defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:9001/eureka/}
@@ -32,6 +35,7 @@ aws:
     access-key: ${AWS_ACCESS_KEY}
     secret-key: ${AWS_SECRET_KEY}
     send-mail-from: ${ADMIN_EMAIL}
+    endpoint-override: ${AWS_SES_ENDPOINT_OVERRIDE:}
   region: ${AWS_REGION}
 
 support:
