@@ -1,0 +1,21 @@
+services:
+  notification-service:
+    image: ${IMAGE}:${IMAGE_TAG:-latest}
+    env_file: .env
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    ports:
+      - "9012:9012"
+    volumes:
+      - /home/deploy/ssl/kafka.truststore.jks:/app/ssl/kafka.truststore.jks:ro
+      - notification-logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - goggles-network
+
+volumes:
+  notification-logs:
+
+networks:
+  goggles-network:
+    external: true

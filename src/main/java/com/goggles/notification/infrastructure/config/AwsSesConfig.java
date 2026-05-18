@@ -28,20 +28,28 @@ public class AwsSesConfig {
   @Value("${aws.region}")
   private String region;
 
+  @Value("${aws.ses.endpoint-override:}")
+  private String endpointOverride;
+
   @Bean
-  @Profile("!load-test")
+  @Profile("!load-test & !test")
   public SesV2Client amazonSimpleEmailService() {
     AwsBasicCredentials awsBasicCredentials = AwsBasicCredentials.create(accessKey, secretKey);
 
-    return SesV2Client.builder()
-        .region(Region.of(region))
-        .credentialsProvider(StaticCredentialsProvider.create(awsBasicCredentials))
-        .endpointOverride(URI.create("http://localhost:4566"))
-        .build();
+    var builder =
+        SesV2Client.builder()
+            .region(Region.of(region))
+            .credentialsProvider(StaticCredentialsProvider.create(awsBasicCredentials));
+
+    if (!endpointOverride.isEmpty()) {
+      builder.endpointOverride(URI.create(endpointOverride));
+    }
+
+    return builder.build();
   }
 
   @Bean
-  @Profile("load-test")
+  @Profile({"load-test","test"})
   public SesV2Client mockSesV2Client() {
     SesV2Client mock = Mockito.mock(SesV2Client.class);
     when(mock.sendEmail(any(SendEmailRequest.class)))

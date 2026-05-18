@@ -22,3 +22,7 @@ aws:
 
 support:
   email: test@test.com
+
+eureka:
+  client:
+    enabled: false
