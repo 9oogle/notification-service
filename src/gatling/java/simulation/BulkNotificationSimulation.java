@@ -22,7 +22,7 @@ public class BulkNotificationSimulation extends Simulation {
 
   private static final ScenarioBuilder scenario = scenario("Bulk 알림 600건")
       .exec(http("Bulk 알림 발송")
-          .post("/api/v1/notifications/ORDER_COMPLETED/EMAIL/bulk")
+          .post("/api/v1/notifications/ORDER_CANCELLED/EMAIL/bulk")
           .body(ElFileBody("bulk_600_recipients.json")).asJson()
           .check(status().is(200)));
 

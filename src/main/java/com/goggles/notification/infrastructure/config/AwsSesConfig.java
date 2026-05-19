@@ -3,7 +3,6 @@ package com.goggles.notification.infrastructure.config;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.net.URI;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -29,19 +28,17 @@ public class AwsSesConfig {
   private String region;
 
   @Bean
-  @Profile("!load-test")
+  @Profile("!test")
   public SesV2Client amazonSimpleEmailService() {
     AwsBasicCredentials awsBasicCredentials = AwsBasicCredentials.create(accessKey, secretKey);
-
     return SesV2Client.builder()
         .region(Region.of(region))
         .credentialsProvider(StaticCredentialsProvider.create(awsBasicCredentials))
-        .endpointOverride(URI.create("http://localhost:4566"))
         .build();
   }
 
   @Bean
-  @Profile("load-test")
+  @Profile({"test"})
   public SesV2Client mockSesV2Client() {
     SesV2Client mock = Mockito.mock(SesV2Client.class);
     when(mock.sendEmail(any(SendEmailRequest.class)))

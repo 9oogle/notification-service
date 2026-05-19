@@ -22,7 +22,7 @@ public class SingleNotificationSimulation extends Simulation {
   private static final ScenarioBuilder scenario = scenario("단건 알림 600건")
       .feed(feeder)
       .exec(http("단건 알림 발송")
-          .post("/api/v1/notifications/ORDER_COMPLETED/EMAIL")
+          .post("/api/v1/notifications/ORDER_CANCELLED/EMAIL")
           .body(StringBody(session -> {
             String receiverId = session.getString("receiverId");
             String receiverType = session.getString("receiverType");

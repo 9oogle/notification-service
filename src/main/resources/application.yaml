@@ -7,7 +7,6 @@ spring:
       local: "local,topics"
       dev: "dev,topics"
       prod: "prod,kafka,topics"
-      load-test: "local,topics"
   config:
     import:
       - "optional:configserver: "
