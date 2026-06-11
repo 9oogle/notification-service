@@ -32,7 +32,7 @@ public class NotificationEventImpl implements NotificationEvents {
   @Override
   public void bulkEmailSendRequested(BulkEmailSendRequestedEvent event) {
     events.trigger(
-        event.notificationIds().toString() + ":bulk-email-send-requested",
+        event.notificationIds().getFirst() + ":bulk-email-send-requested",
         DOMAIN,
         notificationTopics.bulkEmailSendRequested(),
         event);

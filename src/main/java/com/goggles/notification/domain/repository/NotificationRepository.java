@@ -16,6 +16,4 @@ public interface NotificationRepository {
   void updateNotificationsFailed(List<UUID> ids, String failureReason);
 
   Optional<Notification> findById(UUID id);
-
-  List<Notification> findByIds(List<UUID> ids);
 }

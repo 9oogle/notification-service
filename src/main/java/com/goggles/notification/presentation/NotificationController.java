@@ -20,6 +20,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class NotificationController {
   private final NotificationProcessor notificationProcessor;
 
+  @PostMapping("/{notificationType}/{channel}")
+  public void sendNotification(
+      @RequestBody @Valid CreateNotificationRequest request,
+      @PathVariable String notificationType,
+      @PathVariable String channel,
+      @RequestHeader("X-User-Id") UUID userId,
+      @RequestHeader("X-User-Role") String userRole) {
+
+    notificationProcessor.process(request.toCommand(notificationType, channel));
+  }
+
   @PostMapping("/{notificationType}/{channel}/bulk")
   public void sendBulkNotification(
       @RequestBody @Valid List<@Valid CreateNotificationRequest> requests,
